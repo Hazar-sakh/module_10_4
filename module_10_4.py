@@ -1,4 +1,3 @@
-from tabnanny import check
 from time import sleep
 from threading import Thread
 from queue import Queue
@@ -47,10 +46,19 @@ class Cafe:
 
 
     def discuss_guests(self):
-        while not self.queue.empty():
+        wrks = True
+        while wrks:
+            cnt = 0
             for i in self.tables:
-                if i.guest.is_alive():
+                if i.guest is not None and i.guest.is_alive():
                     i.guest.join()
+                    continue
+                if i.guest is None: 
+                    if self.queue.empty():
+                        cnt += 1
+                        if cnt == len(self.tables):
+                            wrks = False
+                            break
                     continue
                 print (f'{i.guest.name} покушал(-а) и ушёл(ушла)\nСтол номер {i.number} свободен')
                 i.guest = None
@@ -58,7 +66,7 @@ class Cafe:
                     next_guest = self.queue.get()
                     i.guest = next_guest
                     next_guest.start()
-                    print(f'{i.guest.name} вышел(-ла) из очереди и сел(-а) за стол номер {i.number}')
+                    print(f'{i.guest.name} вышел(-ла) из очереди и сел(-а) за стол номер {i.number}')            
 
 
 
